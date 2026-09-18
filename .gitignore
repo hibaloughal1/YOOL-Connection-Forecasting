@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Real collected connection/enrollment data - not for publication
+application/yool-v2_train_2.csv

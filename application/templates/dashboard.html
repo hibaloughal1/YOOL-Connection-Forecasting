@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yool Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <!-- Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <style>
+    :root {
+      --dark-bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent-blue: #0077cc;
+      --accent-orange: #f58634;
+      --accent-light: #64b5f6;
+      --text-light: #ffffff;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      background-color: var(--dark-bg);
+      color: #ffffff;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .navbar {
+      background-color: var(--card-bg);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .navbar .nav-link {
+      color: var(--text-muted);
+    }
+
+    .navbar .nav-link.active {
+      color: var(--accent-orange) !important;
+      font-weight: bold;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: none;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-title {
+     font-size: 0.9rem;
+     font-family: 'Inter', sans-serif;
+     font-weight: 600;
+     color: #ffffff;
+     text-transform: uppercase;
+     letter-spacing: 0.4px;
+    }
+
+    .card-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--accent-orange);
+    }
+
+    .graph-container {
+
+      background-color: rgba(30, 41, 59, 0.7);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .graph-container > div {
+      max-width: 100% !important;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .graph-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 15px;
+      letter-spacing: 0.5px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3); /* optionnel */
+    }
+
+    .form-control, .form-select {
+      background-color: #1e1e2e;
+      color: var(--text-light);
+      border: 1px solid var(--accent-blue);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-orange);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #e46b17;
+    }
+
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="{{ url_for('index')}}">
+      <img src="../static/images/logo_yool.svg" alt="Yool Logo" height="45">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="#">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('prediction') }}">Prediction</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  <!-- Bloc principal avec cartes et graph barres -->
+  <div class="dashboard-main d-flex flex-wrap gap-4">
+    <!-- Cartes statistiques en colonne -->
+    <div class="d-flex flex-column gap-3 flex-grow-1" style="min-width: 280px; max-width: 320px;">
+      <div class="card text-center" style="margin-top: 20px;">
+      <div class="card-title">⏱ Période sélectionnée</div>
+      <form action="{{ url_for('dashboard') }}" method="post">
+        <input type="text" id="dateRangePicker" name="dateRangePicker" class="form-control text-center">
+        <input type="hidden" name="start_date" id="start_date">
+        <input type="hidden" name="end_date" id="end_date">
+        <div id="dateMessage" class="text-danger small mt-2" style="display: none;"></div>
+        <button class="btn btn-primary btn-sm mt-2">Visualiser</button>
+      </form>
+    </div>
+      <div class="card text-center">
+        <!-- contenu carte total connexions -->
+         <div class="card-title">👥 Total Connexions</div>
+         <div class="card-value">{{ total_connexions or 0 }}</div>
+      </div>
+      <div class="card text-center">
+        <!-- contenu carte nombre de séances -->
+        <div class="card-title">📝 Total Séances</div>
+        <div class="card-value">{{ nb_sessions or 0 }}</div>
+      </div>
+      <div class="card text-center">
+        <!-- contenu carte ratio -->
+        <div class="card-title">⚖️ Ratio</div>
+        <div class="card-value text-success">{{ ratio or 0 }} <span class="fs-6">conn/séance</span></div>
+      </div>
+    </div>
+
+  <!-- Graphiques -->
+
+   <!-- Graph connexions par niveau/matière/catégorie -->
+    <div class="graph-container flex-grow-1" style="min-width: 400px; margin-top: 20px;">
+      <!-- formulaire + bar chart -->
+         <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="graph-title m-0">📊 Connexions par :</h5>
+            <form method="GET" class="d-flex align-items-center">
+              <input type="hidden" name="start_date" value="{{ start_date }}">
+              <input type="hidden" name="end_date" value="{{ end_date }}">
+              <select name="axe" class="form-control me-2">
+                <option value="niveau" {% if selected_axe == 'niveau' %}selected{% endif %}>Niveau</option>
+                <option value="matiere" {% if selected_axe == 'matiere' %}selected{% endif %}>Matière</option>
+                <option value="categorie" {% if selected_axe == 'categorie' %}selected{% endif %}>Catégorie</option>
+              </select>
+
+              <button type="submit" class="btn btn-primary btn-sm">Afficher</button>
+            </form>
+         </div>
+
+<div id="bar-graph"></div>
+<script>
+    try {
+        const barData = {
+            x: {{ bar_data['connexions'] | tojson }},
+            y: {{ bar_data['labels'] | tojson }},
+            type: 'bar',
+            orientation: 'h',
+            text: {{ bar_data['connexions'] | tojson }},
+            textposition: 'auto',
+            marker: {
+              color: 'rgba(245, 134, 52, 0.3)',
+              line: {
+                color: '#f58634', // bordures claires pour contraster sur le fond sombre
+                width: 2
+              }
+            },
+            hovertemplate: '%{y}<br><b>Connexions :</b> %{x}<extra></extra>'
+        };
+        const layout = {
+            margin: { l: 180, r: 40, t: 70, b: 60 },
+            xaxis: {
+                title: {
+                    text: 'Nombre de connexions',
+                    font: { size: 16, color: '#ffffff' }
+                },
+                tickfont: { size: 13, color: '#ffffff' },
+                gridcolor: 'rgba(255,255,255,0.1)'
+            },
+            yaxis: {
+                automargin: true,
+                tickfont: { size: 14, color: '#ffffff' },
+                gridcolor: 'rgba(255,255,255,0.1)'
+            },
+            paper_bgcolor: '#1e293b', // même que --card-bg
+            plot_bgcolor: '#1e293b',
+            font: {
+                family: 'Inter, sans-serif',
+                size: 14,
+                color: '#ffffff'
+            },
+            bargap: 0.25
+        };
+
+        Plotly.newPlot('bar-graph', [barData], layout, { responsive: true });
+    } catch (e) {
+        console.error('Plotly error:', e);
+        document.getElementById('bar-graph').innerText = 'Erreur de chargement du graphique';
+    }
+</script>
+</div>
+</div>
+
+<!-- Graph connexions journalières -->
+  <div class="graph-container mt-4">
+    <h5 class="graph-title">📈 Connexions journalières</h5>
+    <div id="graph_journalier"></div>
+    <script>
+      const jours = {{ jours|tojson }};
+  const total_connexions_journaliers = {{ total_connexions_journaliers|tojson }};
+  const max_connexions = {{ max_connexions|tojson }};
+
+  const trace = {
+    x: jours,
+    y: total_connexions_journaliers,
+    type: 'scatter',
+    mode: 'lines+markers',
+    fill: 'tozeroy',
+    fillcolor: 'rgba(100, 181, 246, 0.2)',  // couleur bleu clair transparent (accent-light)
+    line: {
+      color: '#f58634',  // accent orange
+      width: 3,
+      shape: 'spline'
+    },
+    marker: {
+      color: '#f58634',
+      size: 7,
+      line: { color: '#1e293b', width: 2 } // bordure marker même couleur que background card
+    },
+    customdata: max_connexions,
+    hovertemplate:
+      '<br>'+
+      '<b>Total connexions</b>: %{y}<br>' +
+      '<b>Max connexions séances</b>: %{customdata}<extra></extra>'
+  };
+
+  const layout = {
+    margin: { t: 60, b: 50, l: 60, r: 30 },
+    paper_bgcolor: '#1e293b',  // même que var(--card-bg)
+    plot_bgcolor: '#1e293b',
+    font: { family: 'Inter, sans-serif', size: 14, color: '#ffffff' },
+    xaxis: {
+      title: 'Durée',
+      titlefont: { color: '#f58634', size: 16 },
+      showticklabels: true,
+      tickfont: { color: '#94a3b8' }, // text-muted
+      gridcolor: 'rgba(255, 255, 255, 0.1)',
+      zeroline: false,
+      fixedrange: false
+    },
+    yaxis: {
+      title: 'Connexions',
+      titlefont: { color: '#f58634', size: 16 },
+      tickfont: { color: '#94a3b8', size: 13 },
+      gridcolor: 'rgba(255, 255, 255, 0.1)',
+      zerolinecolor: '#333',
+      zerolinewidth: 1,
+      rangemode: 'tozero'
+    },
+    hovermode: 'x unified',
+    dragmode: 'zoom'
+  };
+
+  Plotly.newPlot('graph_journalier', [trace], layout, {responsive: true});
+
+    </script>
+  </div>
+</div>
+
+<style>
+.dashboard-main {
+  align-items: flex-start;
+  justify-content: space-between;
+}
+</style>
+
+<!-- Graph connexions par heure -->
+<div class="graph-container mt-4" style="width: 100%;">
+  <h5 class="graph-title">⏰ Connexions par heure pour une journée</h5>
+  <form id="day-form" class="d-flex flex-column align-items-center justify-content-center mt-3">
+    <label for="dateRangePicker">Sélectionner une journée :</label>
+    <input
+      type="text"
+      id="dayPicker"
+      name="day"
+      class="form-control text-center mx-auto"
+      style="width: 220px;"
+      placeholder="YYYY-MM-JJ"
+      required
+    />
+    <button class="btn btn-primary btn-sm mt-2" type="submit">Afficher</button>
+  </form>
+
+  <div style="height: 400px; style=width: 100%;">
+    <canvas id="hourlyChart" class="w-full h-full" style="width: 100%; height: 100%;"></canvas>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialisation Flatpickr avec seulement les jours disponibles
+  const availableDays = {{ available_days | tojson }};
+  flatpickr("#dayPicker", {
+    dateFormat: "Y-m-d",
+    enable: availableDays
+  });
+
+  const selectedDay = document.getElementById('dayPicker').value;
+  const datePicker = document.getElementById('dateRangePicker');
+  const hourlyChartCanvas = document.getElementById('hourlyChart').getContext('2d');
+  let hourlyChart; // Global pour pouvoir le détruire / mettre à jour
+
+  function drawHourlyChart(labels, values) {
+    if (hourlyChart) hourlyChart.destroy();
+
+    hourlyChart = new Chart(hourlyChartCanvas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "Connexions par heure",
+          data: values,
+           backgroundColor: 'rgba(255, 102, 0, 0.3)',  // orange transparent
+           borderColor: 'rgba(255, 102, 0, 1)',        // orange foncé
+           borderWidth: 2,
+           borderRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1f2937',
+              titleColor: '#fff',
+              bodyColor: '#f58634',
+            }
+          },
+          
+        scales: {
+          x: { title: { display: true, text: 'Heure' } },
+          y: { title: { display: true, text: 'Nombre de connexions' }, beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  // Initialisation avec la journée par défaut (insérée dans la page HTML)
+  {% if selected_day_hours is defined and selected_day_connexions is defined %}
+    drawHourlyChart({{ selected_day_hours | tojson }}, {{ selected_day_connexions | tojson }});
+  {% endif %}
+
+  // Listener pour changer la journée dynamiquement
+  const dayForm = document.getElementById('day-form');
+  if (dayForm) {
+    dayForm.addEventListener('submit', function (event) {
+      event.preventDefault(); // Empêche le rechargement de la page
+      const selectedDay =  document.getElementById('dayPicker').value;
+
+      fetch(`/dashboard?day=${selectedDay}`, {
+        headers: {
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.labels && data.values) {
+          drawHourlyChart(data.labels, data.values);
+        } else {
+          alert("Aucune donnée trouvée pour cette journée.");
+        }
+      })
+      .catch(error => {
+        console.error("Erreur lors du chargement des données horaires :", error);
+      });
+    });
+  }
+</script>
+
+
+<script>
+  const start_date = "{{ start_date or '' }}";
+  const end_date   = "{{ end_date or '' }}";
+  const messageBox = document.getElementById("dateMessage");
+  flatpickr("#dateRangePicker", {
+    mode: "range",
+    dateFormat: "Y-m-d",
+    defaultDate: (start_date && end_date) ? [start_date, end_date] : [],
+    minDate: "2023-02-20",
+    maxDate: "today",
+    onChange: (selectedDates, dateStr, instance) => {
+      if (selectedDates.length === 2) {
+        const duration = Math.floor((selectedDates[1] - selectedDates[0]) / (1000 * 60 * 60 * 24));
+        if (duration < 7) {
+          messageBox.textContent = "📅 Minimum 7 jours requis.";
+          messageBox.style.display = "block";
+          instance.clear();
+          return;
+        }
+        if (duration > 366) {
+          messageBox.textContent = "📅 Période maximale : 1 an.";
+          messageBox.style.display = "block";
+          instance.clear();
+          return;
+        }
+        messageBox.style.display = "none";
+        document.getElementById("start_date").value = instance.formatDate(selectedDates[0], "Y-m-d");
+        document.getElementById("end_date").value = instance.formatDate(selectedDates[1], "Y-m-d");
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

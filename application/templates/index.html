@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Yool Education Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.js"></script>
+       <style>
+    :root {
+      --dark-bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent-blue: #0077cc;
+      --accent-orange: #f58634;
+      --accent-light: #64b5f6;
+      --text-light: #ffffff;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      background-color: var(--dark-bg);
+      color: #ffffff;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .navbar {
+      background-color: var(--card-bg);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .navbar .nav-link {
+      color: var(--text-muted);
+    }
+
+    .navbar .nav-link.active {
+      color: var(--accent-orange) !important;
+      font-weight: bold;
+    }
+  .welcome-container {
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--accent-light);
+    text-align: center;
+    padding: 20px;
+  }
+
+  .welcome-container h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: var(--accent-orange);
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+  }
+
+  .welcome-container p {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    max-width: 600px;
+  }
+
+  </style>
+
+    
+</head>
+  <body>
+  
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="{{ url_for('index') }}">
+      <img src="../static/images/logo_yool.svg" alt="Yool Logo" height="45">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="{{ url_for('prediction') }}">Prediction</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="welcome-container text-center">
+  <h1>Bienvenue sur la plateforme de visualisation des performances</h1>
+  <p>Explorez les données, identifiez les tendances, et améliorez vos résultats </p>
+</div>
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js" integrity="sha384-7qAoOXltbVP82dhxHAUje59V5r2YsVfBafyUDxEdApLPmcdhBPg1DKg1ERo0BZlK" crossorigin="anonymous"></script>
+</body>
+</html>
+
+
