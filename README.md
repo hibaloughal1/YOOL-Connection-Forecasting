@@ -43,7 +43,7 @@ Edit `application/config.json` with your local MySQL connection details:
     "host": "localhost",
     "user": "root",
     "password": "",
-    "database": "yschool_dev",
+    "database": "yool_db",
     "port": 3306
 }
 ```
